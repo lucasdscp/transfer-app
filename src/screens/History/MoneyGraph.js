@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { Dimensions, ScrollView, View } from 'react-native';
-import { LinearGradient, Stop, Defs, Text, Circle, Ellipse, G, Rect, Polygon, ClipPath, Image } from 'react-native-svg';
+import { LinearGradient, Stop, Defs, Text, Circle, Ellipse, G, ClipPath, Image } from 'react-native-svg';
 import { BarChart, Grid } from 'react-native-svg-charts';
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 class MoneyGraph extends Component {
     render() {

@@ -5,26 +5,33 @@ import {
     Image, 
     Text, 
     StyleSheet, 
-    TouchableOpacity,
-    AsyncStorage
+    TouchableOpacity
 } from 'react-native';
 
 import ContactImage from '../../components/ContactImage';
 import Button from '../../components/Button';
 
 import { TextInputMask } from 'react-native-masked-text'
+import Toast from 'react-native-root-toast';
+import AsyncStorage from '@react-native-community/async-storage';
 
 class ContactDetailModal extends Component {
     state = {
-        moneyToSend: ''
+        moneyToSend: '',
+        isLoading: false
     }
 
     sendMoney = () => {
-        const { moneyToSend } = this.state;
+        const { moneyToSend, isLoading } = this.state;
         const { info } = this.props;
+
+        if (isLoading) return;
 
         AsyncStorage.getItem('token')
         .then(token => {
+
+            this.setState({ isLoading: true });
+
             if (moneyToSend) {
                 const valor = moneyToSend
                 .replace('R$', '')
@@ -45,15 +52,33 @@ class ContactDetailModal extends Component {
     
                 fetch('https://42pdzdivm6.execute-api.us-east-2.amazonaws.com/public/SendMoney', requestInfo)
                 .then(response => {
+                    this.setState({ isLoading: false });
+
                     if (response.ok) {
                         return response.text();
+                    } else {
+                        this.sendFeedback('Ocorreu um erro, tente novamente em alguns instantes');
                     }
                 })
                 .then(response => {
-                    console.log(response);
+                    this.sendFeedback('Valor enviado com sucesso!');
                 });
             }
         });
+    }
+
+    sendFeedback = message => {
+        Toast.show(message, {
+            duration: Toast.durations.LONG,
+            position: Toast.positions.BOTTOM,
+            shadow: true,
+            animation: true,
+            hideOnPress: true,
+            delay: 0
+        });
+
+        this.onChangeText('');
+        this.props.onSuccess();
     }
 
     onChangeText = text => {
@@ -100,7 +125,7 @@ class ContactDetailModal extends Component {
                             placeholder="R$ 0,00"
                             />
                             <Button 
-                            label="ENVIAR" 
+                            label={this.state.isLoading ? 'CARREGANDO...' : 'ENVIAR'} 
                             onPress={this.sendMoney} 
                             style={styles.button}/>
                         </View>

@@ -6,12 +6,12 @@ import {
     Image, 
     Text,
     SafeAreaView,
-    Platform,
-    AsyncStorage
+    Platform
 } from 'react-native';
 
 import LinearGradient from 'react-native-linear-gradient';
 import AnimatedCircularProgress from 'react-native-conical-gradient-progress';
+import AsyncStorage from '@react-native-community/async-storage';
 
 import Button from '../../components/Button';
 

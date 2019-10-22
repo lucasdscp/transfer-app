@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import { StyleSheet, SafeAreaView, View, FlatList, AsyncStorage } from 'react-native';
+import { StyleSheet, SafeAreaView, View, Text, FlatList, ActivityIndicator } from 'react-native';
 
 import LinearGradient from 'react-native-linear-gradient';
+import AsyncStorage from '@react-native-community/async-storage';
 
 import Header from '../../components/Header';
 import MoneyGraph from './MoneyGraph';
@@ -11,7 +12,9 @@ import contacts from '../../data/contacts';
 
 class History extends Component {
     state = {
-        transactions: []
+        transactions: [],
+        isLoading: false,
+        isEmpty: false
     }
 
     onBack = () => {
@@ -47,6 +50,8 @@ class History extends Component {
     componentDidMount() {
         AsyncStorage.getItem('token')
         .then(token => {
+            this.setState({ isLoading: true });
+
             const userToken = JSON.parse(token);
             const requestInfo = {
                 method: 'GET',
@@ -57,15 +62,43 @@ class History extends Component {
     
             fetch(`https://42pdzdivm6.execute-api.us-east-2.amazonaws.com/public/GetTransfers?token=${userToken}`, requestInfo)
             .then(response => {
+                this.setState({ isLoading: false });
+
                 if (response.ok) {
                     return response.text();
                 }
             })
             .then(response => {
                 const transactions = JSON.parse(response);
-                this.setState({ transactions });
+                const isEmpty = transactions && !transactions.length;
+                this.setState({ transactions, isEmpty });
             });
         })
+    }
+
+    renderLoading = () => {
+        const { isLoading, isEmpty } = this.state;
+
+        if (isLoading) {
+            return (
+                <View style={styles.loadingContent}>
+                    <ActivityIndicator size="large" color="#00a7aa" />
+                    <Text style={styles.loadingText}>Carregando informações...</Text>
+                </View>
+            );
+        }
+
+        if (isEmpty) {
+            return (
+                <View style={styles.loadingContent}>
+                    <Text style={styles.loadingText}>Envie dinheiro para ver suas transações aqui :)</Text>
+                </View>
+            );
+        }
+
+        return (
+            <View />
+        );
     }
 
     render() {
@@ -91,6 +124,7 @@ class History extends Component {
                         keyExtractor={item => item.Id}
                         renderItem={this.renderTransactions}/>
                     </View>
+                    {this.renderLoading()}
                 </SafeAreaView>
             </LinearGradient>
         );
@@ -100,6 +134,20 @@ class History extends Component {
 const styles = StyleSheet.create({
     background: {
         flex: 1
+    },
+    loadingContent: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        top: 150,
+        bottom: 0,
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    loadingText: {
+        color: '#FFF',
+        fontWeight: '300',
+        marginTop: 16
     }
 });
 

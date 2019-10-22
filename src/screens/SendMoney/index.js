@@ -41,6 +41,15 @@ class SendMoney extends Component {
         });
     }
 
+    onSuccess = () => {
+        this.setState({
+            modalVisible: false,
+            sendingContact: {}
+        });
+
+        this.onBack();
+    }
+
     render() {
         return (
             <LinearGradient
@@ -49,14 +58,15 @@ class SendMoney extends Component {
                 <ContactDetailModal
                 isVisible={this.state.modalVisible}
                 info={this.state.sendingContact}
-                onClose={this.onModalClose}/>
+                onClose={this.onModalClose}
+                onSuccess={this.onSuccess} />
                 <SafeAreaView style={styles.background}>
                     <Header onBack={this.onBack} title="ENVIAR DINHEIRO"/>
                     <FlatList
                     removeClippedSubviews
                     data={contacts}
                     keyExtractor={item => item.id}
-                    renderItem={this.renderContacts}/>
+                    renderItem={this.renderContacts} />
                 </SafeAreaView>
             </LinearGradient>
         );
