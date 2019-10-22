@@ -14,7 +14,7 @@ const Header = ({ title, onBack }) => {
                 <View style={styles.buttonContainer}>
                     <Image 
                     source={require('../img/chevron.png')} 
-                    style={styles.button} />
+                    style={styles.button}/>
                 </View>
             </TouchableOpacity>
             <View style={styles.titleContainer}>
@@ -29,7 +29,8 @@ const styles = StyleSheet.create({
         left: 0,
         right: 0,
         height: 50,
-        flexDirection: 'row'
+        flexDirection: 'row',
+        marginBottom: 16
     },
     title: {
         textAlign: 'center',

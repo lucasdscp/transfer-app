@@ -5,7 +5,8 @@ import {
     StatusBar, 
     Image, 
     Text,
-    SafeAreaView
+    SafeAreaView,
+    Platform
 } from 'react-native';
 
 import LinearGradient from 'react-native-linear-gradient';
@@ -97,7 +98,7 @@ const styles = StyleSheet.create({
         fontWeight: '300'
     },
     buttonsContainer: {
-        marginBottom: 16,
+        marginBottom: Platform.OS == 'ios' ? 16 : 32,
         alignItems: 'center'
     },
     sendButton: {
