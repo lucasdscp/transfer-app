@@ -6,7 +6,8 @@ import {
     Image, 
     Text,
     SafeAreaView,
-    Platform
+    Platform,
+    AsyncStorage
 } from 'react-native';
 
 import LinearGradient from 'react-native-linear-gradient';
@@ -23,6 +24,28 @@ class Home extends Component {
     goTo = (routeName, params) => {
         const { navigation } = this.props;
         navigation.push(routeName, params);
+    }
+
+    componentDidMount() {
+        AsyncStorage.getItem('token')
+        .then(token => {
+            if (!token) {
+                const { userName, email } = this.state;
+                const requestInfo = {
+                    method: 'GET'
+                };
+        
+                fetch(`https://42pdzdivm6.execute-api.us-east-2.amazonaws.com/public/GenerateToken?nome=${userName}&email=${email}`, requestInfo)
+                .then(response => {
+                    if (response.ok) {
+                        return response.text();
+                    }
+                })
+                .then(token => {
+                    AsyncStorage.setItem('token', token);
+                });
+            }
+        })
     }
 
     render() {

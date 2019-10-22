@@ -100,7 +100,7 @@ class MoneyGraph extends Component {
         );
 
         let chartWidth = width;
-        let spacingInner = 0.5;
+        let spacingInner = 0.99;
         
         const bars = data.length;
         const spaceBars = bars - 1;

@@ -6,7 +6,7 @@ import {
     Text, 
     StyleSheet, 
     TouchableOpacity,
-    TextInput
+    AsyncStorage
 } from 'react-native';
 
 import ContactImage from '../../components/ContactImage';
@@ -20,7 +20,40 @@ class ContactDetailModal extends Component {
     }
 
     sendMoney = () => {
-        console.log(this.state.moneyToSend);
+        const { moneyToSend } = this.state;
+        const { info } = this.props;
+
+        AsyncStorage.getItem('token')
+        .then(token => {
+            if (moneyToSend) {
+                const valor = moneyToSend
+                .replace('R$', '')
+                .replace(',', '.');
+    
+                const requestInfo = {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        ClienteId: info.id,
+                        token: JSON.parse(token),
+                        valor: parseFloat(valor).toFixed(2)
+                    }),
+                    headers: {
+                        'Accept': '*/*',
+                        'Content-type': 'application/json; charset=UTF-8'
+                    }
+                };
+    
+                fetch('https://42pdzdivm6.execute-api.us-east-2.amazonaws.com/public/SendMoney', requestInfo)
+                .then(response => {
+                    if (response.ok) {
+                        return response.text();
+                    }
+                })
+                .then(response => {
+                    console.log(response);
+                });
+            }
+        });
     }
 
     onChangeText = text => {

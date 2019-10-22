@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, SafeAreaView, View, FlatList } from 'react-native';
+import { StyleSheet, SafeAreaView, View, FlatList, AsyncStorage } from 'react-native';
 
 import LinearGradient from 'react-native-linear-gradient';
 
@@ -22,14 +22,14 @@ class History extends Component {
     buildUserTransactions = transactions => {
         let userTransactions = [];
         transactions.map(transaction => {
-            const userIndex = userTransactions.findIndex(user => user.id === transaction.userid);
+            const userIndex = userTransactions.findIndex(user => user.id === transaction.ClienteId);
             if (userIndex > -1) {
-                userTransactions[userIndex].amount += transaction.value;
+                userTransactions[userIndex].amount += transaction.valor;
             } else {
-                const contact = contacts.find(user => user.id === transaction.userid);
+                const contact = contacts.find(user => user.id === transaction.ClienteId);
                 userTransactions.push({
                     ...contact,
-                    amount: transaction.value
+                    amount: transaction.valor
                 });
             }
         });
@@ -38,16 +38,41 @@ class History extends Component {
     }
 
     renderTransactions = ({ item }) => {
-        const contact = contacts.find(user => user.id === item.userid);
+        const contact = contacts.find(user => user.id === item.ClienteId);
         return (
-            <Contact info={{ ...contact, amount: item.value }} />
+            <Contact info={{ ...contact, amount: item.valor }} />
         );
+    }
+
+    componentDidMount() {
+        AsyncStorage.getItem('token')
+        .then(token => {
+            const userToken = JSON.parse(token);
+            const requestInfo = {
+                method: 'GET',
+                headers: {
+                    'Content-type': 'application/json; charset=UTF-8'
+                }
+            };
+    
+            fetch(`https://42pdzdivm6.execute-api.us-east-2.amazonaws.com/public/GetTransfers?token=${userToken}`, requestInfo)
+            .then(response => {
+                if (response.ok) {
+                    return response.text();
+                }
+            })
+            .then(response => {
+                const transactions = JSON.parse(response);
+                this.setState({ transactions });
+            });
+        })
     }
 
     render() {
         const { transactions } = this.state;
-        const myTransactions = transactions.sort((a, b) => a.id < b.id ? 1 : -1);
+        const myTransactions = transactions.sort((a, b) => a.Data < b.Data ? 1 : -1);
         const userTransactions = this.buildUserTransactions(myTransactions);
+        console.log(userTransactions);
 
         return (
             <LinearGradient
@@ -63,7 +88,7 @@ class History extends Component {
                         <FlatList
                         removeClippedSubviews
                         data={transactions}
-                        keyExtractor={item => item.id}
+                        keyExtractor={item => item.Id}
                         renderItem={this.renderTransactions}/>
                     </View>
                 </SafeAreaView>
